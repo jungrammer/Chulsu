@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/top" />
+
+    <EditText
+        android:id="@+id/listenerEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ly_playButton"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/top"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/speech_bubble"
+        android:hint="듣고싶은 문장을 입력하세요." />
+
+    <ImageButton
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/listenerEditText"
+        android:layout_alignTop="@+id/listenerEditText"
+        android:background="@drawable/clear_text_button"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/ly_playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ly_button"
+        android:layout_centerHorizontal="true" >
+
+        <ImageView
+            android:id="@+id/listenrButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/children" />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/play_button"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/languageSelectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/ly_playButton"
+        android:drawablePadding="5dp"
+        android:drawableTop="@drawable/setting_button"
+        android:gravity="center_vertical"
+        android:paddingRight="15dp"
+        android:text="로딩중"
+        android:textSize="13dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/soundSelectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/languageSelectButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignRight="@+id/languageSelectButton"
+        android:layout_below="@+id/languageSelectButton"
+        android:layout_marginTop="15dp"
+        android:drawablePadding="5dp"
+        android:drawableTop="@drawable/setting_volume_button"
+        android:gravity="center"
+        android:paddingRight="15dp"
+        android:text="설정"
+        android:textSize="13dp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/ly_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="7dp"
+        android:layout_marginTop="-30dp"
+        android:orientation="horizontal"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp" >
+
+        <Button
+            android:id="@+id/shareButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/share_button"
+            android:paddingBottom="25dp"
+            android:paddingTop="35dp"
+            android:text="공유하기"
+            android:textSize="16dp" />
+
+        <Button
+            android:id="@+id/shareButtonForKakao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/share_kakao_button"
+            android:paddingBottom="25dp"
+            android:paddingTop="35dp"
+            android:text="카톡공유"
+            android:textSize="16dp" />
+    </LinearLayout>
+
+</RelativeLayout>

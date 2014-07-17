@@ -1,0 +1,31 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shadow" />
+
+    <kr.nexters.chulsu.widget.DefaultView
+        android:id="@+id/defaultView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"	
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp" >
+    </kr.nexters.chulsu.widget.DefaultView>
+
+    <com.fsn.cauly.CaulyAdView
+        xmlns:app="http://schemas.android.com/apk/res/kr.nexters.chulsu"
+        android:id="@+id/xmladview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:allowcall="false"
+        app:appcode="9LphmnSg"
+        app:bannerHeight="Fixed"
+        app:effect="LeftSlide" />
+
+</RelativeLayout>
