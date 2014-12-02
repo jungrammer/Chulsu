@@ -2,6 +2,7 @@ package kr.nexters.chulsu.manager;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -114,7 +115,7 @@ public class TTSManager implements OnInitListener {
 		System.gc();
 		long lastRecordTime = System.currentTimeMillis();
 		lastRecordFileName = lastRecordTime + ".wav";
-		mTTS.synthesizeToFile(text, null, SAVE_FILE_PATH + lastRecordFileName);
+		mTTS.synthesizeToFile(text, new HashMap<String, String>(), SAVE_FILE_PATH + lastRecordFileName);
 		deleteWithoutLastRecordFile5();
 	}
 	
