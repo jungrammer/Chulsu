@@ -14,27 +14,17 @@ public class PrefManager {
 	
 	public static final String PREFKEY_EXISTS_KOREAN_LANGAUAGE = "exists.korean.language";
 	
-	public static final String PREFKEY_RECOMMAND_PREMIUM_DIALOG = "recommand.premium.dialog";
-	
 	public static final String PREFKEY_RECOMMAND_RATE_DIALOG = "recommand.rate.dialog";
 	
 	private SharedPreferences pref;
 	
-	private static volatile PrefManager instance;
+	private static PrefManager instance = new PrefManager();
 	
 	private PrefManager() {
 		pref = Common.getContext().getSharedPreferences("pref", Context.MODE_PRIVATE);
 	}
 	
 	public static PrefManager getInstance() {
-		if(null == instance) {
-			synchronized (PrefManager.class) {
-				if(null == instance) {
-					instance = new PrefManager();
-				}
-			}
-		}
-		
 		return instance;
 	}
 	

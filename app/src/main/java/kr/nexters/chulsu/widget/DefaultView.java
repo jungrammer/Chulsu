@@ -1,17 +1,5 @@
 package kr.nexters.chulsu.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -22,13 +10,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -36,21 +23,26 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import kr.nexters.chulsu.MainActivity;
 import kr.nexters.chulsu.R;
 import kr.nexters.chulsu.manager.PrefManager;
 import kr.nexters.chulsu.manager.TTSManager;
 import kr.nexters.chulsu.manager.TTSManager.OnTTSInitializeListener;
 
-public class DefaultView extends LinearLayout implements OnClickListener {
+public class DefaultView extends LinearLayout {
 
-	private EditText mEditText;
-	private Button mShareButton;
-	private Button mShareButtonForKakao;
-	private View mCancelButton;
-	private View mPlayButton;
-	private TextView mLanguageSelectButton;
-	private TextView mSoundSelectButton;
+	@InjectView(R.id.listenerEditText) EditText editText;
+	@InjectView(R.id.shareButton) Button shareButton;
+	@InjectView(R.id.shareButtonForKakao) Button shareButtonForKakao;
+	@InjectView(R.id.cancelButton) View cancelButton;
+	@InjectView(R.id.playButton) View mPlayButton;
+	@InjectView(R.id.languageSelectButton) TextView mLanguageSelectButton;
+	@InjectView(R.id.soundSelectButton) TextView soundSelectButton;
 
 	public DefaultView(Context context) {
 		super(context);
@@ -63,161 +55,80 @@ public class DefaultView extends LinearLayout implements OnClickListener {
 	}
 
 	private void initialize() {
-		initView();
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.default_view_layout, this);
+		ButterKnife.inject(view);
+
 		initOthers();
 		initControls();
 	}
 
-	private void initView() {
-		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View root = inflater.inflate(R.layout.default_view_layout, null);
-		addView(root);
-		
-		mEditText = (EditText) findViewById(R.id.listenerEditText);
-		mLanguageSelectButton = (TextView) findViewById(R.id.languageSelectButton);
-		mShareButton = (Button) findViewById(R.id.shareButton);
-		mShareButtonForKakao = (Button) findViewById(R.id.shareButtonForKakao);
-		mPlayButton = findViewById(R.id.playButton);
-		mCancelButton = findViewById(R.id.cancelButton);
-		mSoundSelectButton = (TextView) findViewById(R.id.soundSelectButton);
-	}
-
 	private void initControls() {
-		mShareButton.setOnClickListener(this);
-		mShareButtonForKakao.setOnClickListener(this);
-		mLanguageSelectButton.setOnClickListener(this);
-		mPlayButton.setOnClickListener(this);
-		mCancelButton.setOnClickListener(this);
-		mSoundSelectButton.setOnClickListener(this);
-		
-		Typeface tyepFace = Typeface.createFromAsset(getContext().getAssets(), "Gungsuh.ttf");
-		mEditText.setTypeface(tyepFace);
-		mShareButton.setTypeface(tyepFace);
-		mShareButtonForKakao.setTypeface(tyepFace);
-		mLanguageSelectButton.setTypeface(tyepFace);
-		mSoundSelectButton.setTypeface(tyepFace);
+		Typeface typeFace = Typeface.createFromAsset(getContext().getAssets(), "Gungsuh.ttf");
+		editText.setTypeface(typeFace);
+		shareButton.setTypeface(typeFace);
+		shareButtonForKakao.setTypeface(typeFace);
+		mLanguageSelectButton.setTypeface(typeFace);
+		soundSelectButton.setTypeface(typeFace);
 		
 		TTSManager.getInstance().setOnTTSInitializeListener(new OnTTSInitializeListener() {
-			
+
 			@Override
 			public void initialized() {
 				try {
 					mLanguageSelectButton.setText(TTSManager.getInstance().getLocale().getDisplayLanguage());
-				} catch(NullPointerException e) {
+				} catch (NullPointerException e) {
 					mLanguageSelectButton.setText("로딩중");
-				}
-			}
-		});
-		mEditText.addTextChangedListener(new TextWatcher() {
-			@Override public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) { }
-			@Override public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) { }
-			
-			@Override
-			public void afterTextChanged(Editable arg0) { 
-				if(arg0.toString().equals("")) {
-					mPlayButton.setVisibility(View.GONE);
-					mCancelButton.setVisibility(View.GONE);
-				} else {
-					mPlayButton.setVisibility(View.VISIBLE);
-					mCancelButton.setVisibility(View.VISIBLE);
 				}
 			}
 		});
 	}
 	
 	private void initOthers() {
-		checkKaKaoPackage();
+		setVisibilityShareKakaoButton();
 	}
 	
-	private void checkKaKaoPackage() {
+	private void setVisibilityShareKakaoButton() {
 		try {
 			getContext().getPackageManager().getPackageInfo("com.kakao.talk", PackageManager.GET_ACTIVITIES); 
 		} catch(NameNotFoundException e) {
-			mShareButtonForKakao.setVisibility(View.GONE);
-		}
-	}
-	
-	@Override
-	public void onClick(View v) {
-		switch(v.getId()) {
-		case R.id.playButton:
-			onPlayButtonClick();
-			break;
-		case R.id.shareButton:
-			onShareButtonClick();
-			break;
-		case R.id.shareButtonForKakao:
-			onShareForKakaoButtonClick();
-			break;
-		case R.id.languageSelectButton:
-			onLanguageSelecteButtonClick(); 
-			break;
-		case R.id.soundSelectButton:
-			onTTSSettingButtonClick();
-			break;
-		case R.id.cancelButton:
-			onCancelButtonClick();
-			break;
+			shareButtonForKakao.setVisibility(View.GONE);
 		}
 	}
 
-	private void onPlayButtonClick() {
-		if(!checkEditText()) return;
+	@OnClick(R.id.shareButton)
+	void onClickShareButton() {
+		if(!checkEditText()) {
+			return;
+		}
+		String text = editText.getText().toString();
+		TTSManager.getInstance().shareFile((Activity) getContext(), text);
+	}
+
+	@OnClick(R.id.playButton)
+	void onPlayButtonClick() {
+		if(!checkEditText()) {
+			return;
+		}
 		if(!TTSManager.getInstance().isInit()) {
 			Toast.makeText(getContext(), "아직 TTS 기능이 초기화 되지 않았습니다. 잠시 후 다시 시도해 주세요", Toast.LENGTH_SHORT).show(); 
 			return; 
 		}
-		String text = mEditText.getText().toString();
+		String text = editText.getText().toString();
 		
 		TTSManager.getInstance().speak(text);
 		InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(getWindowToken(), 0);
 	}
-	
-	private void onShareButtonClick() {
-		if(!checkEditText()) return;
-		String text = mEditText.getText().toString();
-		TTSManager.getInstance().shareFile((Activity) getContext(), text);
-		sendDataToServer();
-	}
-	
-	private void onShareForKakaoButtonClick() {
-		if(!checkEditText()) return;
-		String text = mEditText.getText().toString();
-		TTSManager.getInstance().shareFileForKakao((Activity) getContext(), text);
-		sendDataToServer();
-	}
-	
-	private void sendDataToServer() {
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				List<NameValuePair> post = new ArrayList<NameValuePair>();
-				
-				post.add(new BasicNameValuePair("text", mEditText.getText().toString()));
-				post.add(new BasicNameValuePair("desc", ""));
-				post.add(new BasicNameValuePair("etc", ""));
-				
-				HttpClient client = new DefaultHttpClient();
-				HttpParams params = client.getParams();
-				HttpConnectionParams.setConnectionTimeout(params, 2000);
-				HttpConnectionParams.setSoTimeout(params, 2000);
-				
-				HttpPost httpPost = new HttpPost("http://54.250.170.196:3002/save");
-				
-				try {
-					UrlEncodedFormEntity entity = new UrlEncodedFormEntity(post, "UTF-8");
-					httpPost.setEntity(entity);
-					client.execute(httpPost);
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
 
-	private void onLanguageSelecteButtonClick() {
+	@OnClick(R.id.shareButtonForKakao)
+	void onShareForKakaoButtonClick() {
+		if(!checkEditText()) return;
+		String text = editText.getText().toString();
+		TTSManager.getInstance().shareFileForKakao((Activity) getContext(), text);
+	}
+	
+	@OnClick(R.id.languageSelectButton)
+	void onLanguageSelectButtonClick() {
 		if(!TTSManager.getInstance().isInit()) {
 			Toast.makeText(getContext(), "아직 TTS 기능이 초기화 되지 않았습니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show(); 
 			return; 
@@ -230,41 +141,24 @@ public class DefaultView extends LinearLayout implements OnClickListener {
 		    showLanguageSelectDialog();
 		}
 	}
-	
+
 	private void showDownloadGoogleTTSDialog() {
-	    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("해당 디바이스의 TTS 엔진에는 한국어가 포함되어 있지 않습니다.\n한국어를 사용하시려면 구글 TTS를 다운받아 설치해 주시기 바랍니다.");
-        builder.setPositiveButton("다운받기", new DialogInterface.OnClickListener() {
-            
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.tts&hl=ko");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                ((Activity) getContext()).startActivityForResult(intent, MainActivity.REQ_GOOGLE_PLAY);
-                PrefManager.getInstance().putBoolean(PrefManager.PREFKEY_EXISTS_KOREAN_LANGAUAGE, true);
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("닫기", new DialogInterface.OnClickListener() {
-            
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                showLanguageSelectDialog();
-            }
-        });
-        builder.setNeutralButton("다시보지않기", new DialogInterface.OnClickListener() {
-            
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                PrefManager.getInstance().putBoolean(PrefManager.PREFKEY_EXISTS_KOREAN_LANGAUAGE, true);
-                dialog.dismiss();
-                showLanguageSelectDialog();
-            }
-        });
-        builder.show();
+		FragmentActivity activity = (FragmentActivity) getContext();
+		DialogFragment dialogFragment = new DownloadGoogleTTSDialogFragment();
+		dialogFragment.show(activity.getSupportFragmentManager(), "DownloadGoogleTTSDialogFragment");
 	}
-	
+
+	@OnTextChanged(value = R.id.listenerEditText, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+	void onAfterTextChange(Editable editable) {
+		if (editable.toString().equals("")) {
+			mPlayButton.setVisibility(View.GONE);
+			cancelButton.setVisibility(View.GONE);
+		} else {
+			mPlayButton.setVisibility(View.VISIBLE);
+			cancelButton.setVisibility(View.VISIBLE);
+		}
+	}
+
 	private void showLanguageSelectDialog() {
 	    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         int selected = PrefManager.getInstance().getInt(PrefManager.PREFKEY_LAST_SET_LANGUAGE, 0);
@@ -282,7 +176,8 @@ public class DefaultView extends LinearLayout implements OnClickListener {
         builder.show();
 	}
 	
-	private void onTTSSettingButtonClick() {
+	@OnClick(R.id.soundSelectButton)
+	void onTTSSettingButtonClick() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle("대신말해줌 설정");
 		builder.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new String[]{"볼륨 조절", "속도 조절", "톤 조절"}), new DialogInterface.OnClickListener() {
@@ -396,14 +291,15 @@ public class DefaultView extends LinearLayout implements OnClickListener {
 		});
 		builder.show();
 	}
-	
-	private void onCancelButtonClick() {
-		mEditText.setText("");
+
+	@OnClick(R.id.cancelButton)
+	void onCancelButtonClick() {
+		editText.setText("");
 	}
 	
 	private boolean checkEditText() {
 		if(!checkTTSEnable()) return false;
-		if(mEditText.getText().toString() == null || mEditText.getText().toString().equals("")) {
+		if(editText.getText().toString() == null || editText.getText().toString().equals("")) {
 			Toast.makeText(getContext(), "문장이 입력되지 않았습니다.", Toast.LENGTH_SHORT).show(); 
 			return false; 
 		}
